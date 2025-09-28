@@ -1,3 +1,4 @@
+// filepath: /Users/sohamsanjaypawar/Documents/FinalSIH/SIHFINAL/frontend2/src/main.jsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

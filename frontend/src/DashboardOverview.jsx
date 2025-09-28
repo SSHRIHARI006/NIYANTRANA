@@ -1,3 +1,4 @@
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
@@ -6,16 +7,11 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
-import { PageLoader } from "./ui/page-loader"
+import Loader from "./components/loader"
 import { Train, Search, Plus, AlertTriangle, TrendingUp, Activity, Wrench } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie } from "recharts"
 
-interface DashboardOverviewProps {
-  searchTerm: string
-  setSearchTerm: (term: string) => void
-}
-
-export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOverviewProps) {
+export function DashboardOverview({ searchTerm, setSearchTerm }) {
   const [isLoading, setIsLoading] = useState(true)
 
   // ===== STATIC DATA - REPLACE WITH BACKEND API CALLS =====
@@ -42,8 +38,8 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
   ]
 
   const pieChartData = [
-    { name: "Service", value: 18, fill: "hsl(var(--primary))" },
-    { name: "Standby", value: 3, fill: "hsl(var(--accent))" },
+    { name: "Service", value: 18, fill: "hsl(var(--chart-1))" },
+    { name: "Standby", value: 3, fill: "hsl(var(--chart-4))" },
     { name: "Maintenance", value: 4, fill: "hsl(var(--chart-2))" },
   ]
 
@@ -121,23 +117,15 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
   ]
   // ===== END STATIC DATA =====
 
-  const filteredRosterData = rosterData.filter(
-    (train) =>
-      train.trainId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      train.route.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (train.conflict?.details || "").toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+const filteredRosterData = rosterData.filter(
+  (train) =>
+    train.trainId.toLowerCase().includes((searchTerm || "").toLowerCase()) ||
+    train.route.toLowerCase().includes((searchTerm || "").toLowerCase()) ||
+    (train.conflict?.details || "").toLowerCase().includes((searchTerm || "").toLowerCase()),
+)
 
   useEffect(() => {
     const loadData = async () => {
-      // TODO: Replace with actual API calls
-      // const [stats, chartData, rosterData] = await Promise.all([
-      //   fetchDashboardStats(),
-      //   fetchChartData(),
-      //   fetchRosterData()
-      // ])
-
-      // Simulate loading time
       await new Promise((resolve) => setTimeout(resolve, 1500))
       setIsLoading(false)
     }
@@ -146,16 +134,28 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
   }, [])
 
   if (isLoading) {
-    return <PageLoader message="Loading dashboard data..." />
+    return <Loader fullscreen message="Loading dashboard data..." />
   }
 
   return (
-    <div className="space-y-4 lg:space-y-6">
+    <div
+      style={
+        {
+          "--primary": "221 83% 53%",
+          "--secondary": "38 92% 50%",
+          "--destructive": "0 72% 50%",
+          "--chart-1": "221 83% 53%",
+          "--chart-2": "0 72% 50%",
+          "--chart-4": "215 20% 45%",
+        }
+      }
+      className="space-y-4 lg:space-y-6 animate-fade-in"
+    >
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="border border-border animate-slide-in">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Metro Trains Deployed</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Metro Trains Deployed</CardTitle>
             <Train className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -164,20 +164,20 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+        <Card className="border border-border animate-slide-in">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Maintenance Cycles</CardTitle>
-            <Wrench className="h-4 w-4 text-accent" />
+            <CardTitle className="text-sm font-medium text-card-foreground">Maintenance Cycles</CardTitle>
+            <Wrench className="h-4 w-4 text-secondary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl lg:text-3xl font-bold text-accent">{dashboardStats.maintenanceCycles}</div>
+            <div className="text-2xl lg:text-3xl font-bold text-secondary">{dashboardStats.maintenanceCycles}</div>
             <p className="text-xs text-muted-foreground">Completed today</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-chart-2/10 to-chart-2/5 border-chart-2/20">
+        <Card className="border border-border animate-slide-in">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Branding Missions</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Branding Missions</CardTitle>
             <TrendingUp className="h-4 w-4 text-chart-2" />
           </CardHeader>
           <CardContent>
@@ -186,18 +186,18 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-chart-4/10 to-chart-4/5 border-chart-4/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fleet Status</CardTitle>
+        <Card className="border border-border animate-slide-in">
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-card-foreground">Fleet Status</CardTitle>
             <Activity className="h-4 w-4 text-chart-4" />
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm text-card-foreground">
                 <span>Standby: {dashboardStats.fleetStatus.standby}</span>
                 <span>Backlog: {dashboardStats.fleetStatus.backlog}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm text-card-foreground">
                 <span>Active: {dashboardStats.fleetStatus.active}</span>
                 <span>SLA: {dashboardStats.fleetStatus.sla}%</span>
               </div>
@@ -208,34 +208,50 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
 
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
-        <Card className="xl:col-span-2">
+        <Card className="xl:col-span-2 animate-slide-in">
           <CardHeader>
-            <CardTitle className="text-lg lg:text-xl">Daily Fleet Performance</CardTitle>
+            <CardTitle className="text-lg lg:text-xl text-card-foreground">Daily Fleet Performance</CardTitle>
             <CardDescription>Metro service runs completed per day</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250} className="lg:h-[300px]">
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" fontSize={12} />
-                <YAxis fontSize={12} />
-                <Tooltip />
-                <Bar dataKey="service" fill="hsl(var(--primary))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" fontSize={12} stroke="hsl(var(--muted-foreground))" />
+                <YAxis fontSize={12} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "var(--radius)",
+                    color: "hsl(var(--card-foreground))",
+                  }}
+                />
+                <Bar dataKey="service" fill="hsl(var(--chart-1))" />
+                <Bar dataKey="maintenance" fill="hsl(var(--chart-2))" />
+                <Bar dataKey="standby" fill="hsl(var(--chart-4))" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-slide-in">
           <CardHeader>
-            <CardTitle className="text-lg lg:text-xl">Fleet Status Breakdown</CardTitle>
+            <CardTitle className="text-lg lg:text-xl text-card-foreground">Fleet Status Breakdown</CardTitle>
             <CardDescription>Current distribution</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250} className="lg:h-[300px]">
               <PieChart>
                 <Pie data={pieChartData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "var(--radius)",
+                    color: "hsl(var(--card-foreground))",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -243,11 +259,11 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
       </div>
 
       {/* Roster Table */}
-      <Card>
+      <Card className="animate-slide-in">
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-lg lg:text-xl">Today's Operational Roster</CardTitle>
+              <CardTitle className="text-lg lg:text-xl text-card-foreground">Today's Operational Roster</CardTitle>
               <CardDescription>Real-time metro train assignments and status</CardDescription>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -255,12 +271,12 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search trains..."
-                  className="pl-8 w-full sm:w-64"
+                  className="pl-8 w-full sm:w-64 bg-input border-border text-foreground"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90">
                 <Plus className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Manual Intervention</span>
                 <span className="sm:hidden">Override</span>
@@ -271,17 +287,29 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
         <CardContent>
           <Tabs defaultValue="service" className="w-full">
             <div className="overflow-x-auto">
-              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 min-w-max">
-                <TabsTrigger value="service" className="text-xs lg:text-sm">
+              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 min-w-max bg-muted">
+                <TabsTrigger
+                  value="service"
+                  className="text-xs lg:text-sm data-[state=active]:bg-background data-[state=active]:text-foreground"
+                >
                   Service Roster
                 </TabsTrigger>
-                <TabsTrigger value="branding" className="text-xs lg:text-sm">
+                <TabsTrigger
+                  value="branding"
+                  className="text-xs lg:text-sm data-[state=active]:bg-background data-[state=active]:text-foreground"
+                >
                   Branding Schedule
                 </TabsTrigger>
-                <TabsTrigger value="entering" className="text-xs lg:text-sm">
+                <TabsTrigger
+                  value="entering"
+                  className="text-xs lg:text-sm data-[state=active]:bg-background data-[state=active]:text-foreground"
+                >
                   Entering Maintenance
                 </TabsTrigger>
-                <TabsTrigger value="exiting" className="text-xs lg:text-sm">
+                <TabsTrigger
+                  value="exiting"
+                  className="text-xs lg:text-sm data-[state=active]:bg-background data-[state=active]:text-foreground"
+                >
                   Exiting Maintenance
                 </TabsTrigger>
               </TabsList>
@@ -290,21 +318,29 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="min-w-[80px]">Train ID</TableHead>
-                      <TableHead className="min-w-[100px]">Status</TableHead>
-                      <TableHead className="min-w-[120px] hidden sm:table-cell">Job Card</TableHead>
-                      <TableHead className="min-w-[120px] hidden md:table-cell">Certificate</TableHead>
-                      <TableHead className="min-w-[100px] hidden lg:table-cell">Mileage</TableHead>
-                      <TableHead className="min-w-[150px] hidden xl:table-cell">Branding</TableHead>
-                      <TableHead className="min-w-[200px]">AI Reason</TableHead>
-                      <TableHead className="min-w-[100px]">Alerts</TableHead>
+                    <TableRow className="border-border">
+                      <TableHead className="min-w-[80px] text-muted-foreground">Train ID</TableHead>
+                      <TableHead className="min-w-[100px] text-muted-foreground">Status</TableHead>
+                      <TableHead className="min-w-[120px] hidden sm:table-cell text-muted-foreground">
+                        Job Card
+                      </TableHead>
+                      <TableHead className="min-w-[120px] hidden md:table-cell text-muted-foreground">
+                        Certificate
+                      </TableHead>
+                      <TableHead className="min-w-[100px] hidden lg:table-cell text-muted-foreground">
+                        Mileage
+                      </TableHead>
+                      <TableHead className="min-w-[150px] hidden xl:table-cell text-muted-foreground">
+                        Branding
+                      </TableHead>
+                      <TableHead className="min-w-[200px] text-muted-foreground">AI Reason</TableHead>
+                      <TableHead className="min-w-[100px] text-muted-foreground">Alerts</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredRosterData.map((train) => (
-                      <TableRow key={train.trainId} className="hover:bg-muted/50">
-                        <TableCell className="font-medium">{train.trainId}</TableCell>
+                      <TableRow key={train.trainId} className="hover:bg-muted/50 border-border">
+                        <TableCell className="font-medium text-card-foreground">{train.trainId}</TableCell>
                         <TableCell>
                           <Badge
                             variant={
@@ -328,11 +364,15 @@ export function DashboardOverview({ searchTerm, setSearchTerm }: DashboardOvervi
                             {train.certificateStatus}
                           </Badge>
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell text-sm">
+                        <TableCell className="hidden lg:table-cell text-sm text-card-foreground">
                           {train.mileage.toLocaleString()} km
                         </TableCell>
-                        <TableCell className="hidden xl:table-cell text-sm">{train.branding || "None"}</TableCell>
-                        <TableCell className="text-sm max-w-[200px] truncate">{train.aiReason}</TableCell>
+                        <TableCell className="hidden xl:table-cell text-sm text-card-foreground">
+                          {train.branding || "None"}
+                        </TableCell>
+                        <TableCell className="text-sm max-w-[200px] truncate text-card-foreground">
+                          {train.aiReason}
+                        </TableCell>
                         <TableCell>
                           {train.conflict && (
                             <Badge variant="destructive" className="text-xs">
